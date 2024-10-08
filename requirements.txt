@@ -4,10 +4,12 @@ blinker==1.8.2
 boltons==21.0.0
 bracex==2.5.post1
 certifi==2024.8.30
+cffi==1.17.1
 charset-normalizer==3.3.2
 click==8.1.7
 click-option-group==0.5.6
 colorama==0.4.6
+cryptography==43.0.1
 defusedxml==0.7.1
 Deprecated==1.2.14
 exceptiongroup==1.2.2
@@ -43,6 +45,7 @@ opentelemetry-util-http==0.46b0
 packaging==24.1
 peewee==3.17.6
 protobuf==4.25.5
+pycparser==2.22
 Pygments==2.18.0
 pypdf==5.0.1
 python-dotenv==1.0.1
