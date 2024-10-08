@@ -1,4 +1,3 @@
-# models.py
 from datetime import datetime
 import pytz
 from flask_sqlalchemy import SQLAlchemy
