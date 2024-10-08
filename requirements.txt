@@ -49,6 +49,7 @@ pycparser==2.22
 Pygments==2.18.0
 pypdf==5.0.1
 python-dotenv==1.0.1
+pytz==2024.2
 referencing==0.35.1
 requests==2.32.3
 rich==13.5.3
