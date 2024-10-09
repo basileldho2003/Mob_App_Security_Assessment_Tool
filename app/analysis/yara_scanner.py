@@ -1,4 +1,3 @@
-# yara_scanner.py
 import os
 import yara
 import logging

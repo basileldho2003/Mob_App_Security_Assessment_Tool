@@ -1,4 +1,3 @@
-# webview_security.py
 import os
 import re
 import logging
