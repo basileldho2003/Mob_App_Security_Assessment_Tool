@@ -1,6 +1,5 @@
 import json
 import os
-import logging
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 
