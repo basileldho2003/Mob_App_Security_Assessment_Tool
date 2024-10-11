@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Scan Results</h2>
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Summary</h5>
+        <p class="card-text">{{ summary }}</p>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h3>Findings</h3>
+    {% if findings %}
+    <ul class="list-group">
+        {% for finding in findings %}
+        <li class="list-group-item">
+            <strong>{{ finding.type }}</strong>: {{ finding.detail }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No issues found in the scan.</p>
+    {% endif %}
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('download_report', report_type='pdf', scan_id=scan_id) }}" class="btn btn-primary">Download PDF
+        Report</a>
+    <a href="{{ url_for('download_report', report_type='html', scan_id=scan_id) }}" class="btn btn-secondary">Download
+        HTML Report</a>
+</div>
+{% endblock %}
