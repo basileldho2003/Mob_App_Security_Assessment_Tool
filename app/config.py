@@ -14,7 +14,7 @@ fkey='VNzCN2GykeLKEfFL2qXi6wO02duDAYS0noVLtZ3Sd-k='
 passwd=decrypt_password(epasswd, fkey)
 database='mobile_security_db'
 
-# Configuration classes for the application.
+# Configuration classes  for the application.
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', f'mysql+mysqlconnector://{user}:{passwd}@localhost/{database}?charset=utf8mb4&collation=utf8mb4_general_ci')
