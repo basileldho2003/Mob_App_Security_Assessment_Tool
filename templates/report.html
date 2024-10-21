@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Report{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="text-center">Scan Report</h2>
+        <p class="text-muted text-center">Scan ID: {{ scan.id }} | Date: {{ scan.scan_date }}</p>
+
+        <div class="mt-4">
+            <h4>Manifest Issues</h4>
+            {% if scan.manifest_issues %}
+            <ul class="list-group">
+                {% for issue in scan.manifest_issues %}
+                <li class="list-group-item">
+                    <strong>{{ issue.issue_type }}:</strong> {{ issue.issue_detail }}
+                    <span
+                        class="badge bg-{{ 'danger' if issue.severity == 'critical' else 'warning' if issue.severity == 'high' else 'secondary' }} float-end">{{
+                        issue.severity }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No manifest issues found.</p>
+            {% endif %}
+        </div>
+
+        <div class="mt-4">
+            <h4>Source Code Issues</h4>
+            {% if scan.source_code_issues %}
+            <ul class="list-group">
+                {% for issue in scan.source_code_issues %}
+                <li class="list-group-item">
+                    <strong>{{ issue.issue_type }}:</strong> {{ issue.issue_detail }} (File: {{ issue.file_path }},
+                    Line: {{ issue.line_number }})
+                    <span
+                        class="badge bg-{{ 'danger' if issue.severity == 'critical' else 'warning' if issue.severity == 'high' else 'secondary' }} float-end">{{
+                        issue.severity }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No source code issues found.</p>
+            {% endif %}
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('report.view_report', scan_id=scan.id) }}" class="btn btn-primary">Download PDF
+                Report</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

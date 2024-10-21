@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="mt-5">Welcome to the Mobile App Security Assessment Tool</h1>
+        <p class="lead mt-4">This tool helps you assess the security of Android mobile applications by identifying
+            potential vulnerabilities and generating reports.</p>
+        <hr class="my-4">
+        {% if current_user.is_authenticated %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('scanner.dashboard') }}" role="button">Go to Dashboard</a>
+        {% else %}
+        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Get Started</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
