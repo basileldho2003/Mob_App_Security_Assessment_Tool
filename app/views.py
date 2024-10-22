@@ -4,7 +4,6 @@ from app import db, bcrypt
 from app.models import User, Upload, Scan
 from app.forms import RegistrationForm, LoginForm
 from app.utils import save_file, log_message, allowed_file
-import os
 
 # Blueprints
 auth = Blueprint('auth', __name__)

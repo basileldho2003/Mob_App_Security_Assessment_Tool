@@ -21,9 +21,9 @@ def create_app(config_name='default'):
     login_manager.init_app(app)
 
     # Register blueprints
-    from app.views.auth import auth as auth_blueprint
-    from app.views.scanner import scanner as scanner_blueprint
-    from app.views.report import report as report_blueprint
+    from app.views import auth as auth_blueprint
+    from app.views import scanner as scanner_blueprint
+    from app.views import report as report_blueprint
 
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(scanner_blueprint, url_prefix='/scanner')
