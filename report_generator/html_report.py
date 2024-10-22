@@ -1,5 +1,4 @@
 from jinja2 import Environment, FileSystemLoader
-import os
 
 def generate_html_report(output_path, report_data):
     """
