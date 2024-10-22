@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -28,9 +28,4 @@ def create_app(config_name='default'):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(scanner_blueprint, url_prefix='/scanner')
     app.register_blueprint(report_blueprint, url_prefix='/report')
-
-    @app.route('/')
-    def home():
-        return render_template('index.html') 
-
     return app
