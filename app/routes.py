@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session
-from app import db
-from app.models import User, Upload, Scan  # Import necessary models
+from app.database import db
+from app.database.models import User, Upload, Scan  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app

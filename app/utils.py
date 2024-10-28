@@ -1,7 +1,7 @@
 import os
 from werkzeug.security import generate_password_hash
-from app import db
-from app.models import User, Log
+from app.database import db
+from app.database.models import User, Log
 from datetime import datetime
 
 def create_admin_user(username, email, password):
