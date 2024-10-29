@@ -51,9 +51,15 @@ def dashboard():
     if 'user_id' not in session:
         flash("Please log in to access this page.", "warning")
         return redirect(url_for('login'))
-    
-    user_uploads = Upload.query.filter_by(user_id=session['user_id']).all()
-    return render_template('dashboard.html', uploads=user_uploads)
+
+    if session.get('role') == 'admin':
+        # Fetch all uploads for admin view
+        all_uploads = Upload.query.all()
+        return render_template('dashboard.html', all_uploads=all_uploads)
+    else:
+        # Fetch uploads for the logged-in user
+        uploads = Upload.query.filter_by(user_id=session['user_id']).all()
+        return render_template('dashboard.html', uploads=uploads)
 
 # Route for uploading APK files
 @app.route('/upload', methods=['GET', 'POST'])
