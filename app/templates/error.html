@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Error - Mobile App Security Tool{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center">
+                <div class="card-header bg-danger text-white">
+                    <h3>Error</h3>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ error }}</h5>
+                    <p class="card-text">
+                        {% if error == "404 Not Found" %}
+                        The page you are looking for could not be found. Please check the URL and try again.
+                        {% elif error == "500 Internal Server Error" %}
+                        An unexpected error occurred on the server. Please try again later or contact support.
+                        {% else %}
+                        An unexpected error occurred. Please try again later.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('home') }}" class="btn btn-primary">Go to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

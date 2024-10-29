@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mobile App Security Tool{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Your Uploaded Files</h4>
+        </div>
+        <div class="card-body">
+            {% if uploads %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">File Name</th>
+                            <th scope="col">Upload Date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for upload in uploads %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ upload.apk_file_name }}</td>
+                            <td>{{ upload.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if upload.scans and upload.scans[0].status %}
+                                <span
+                                    class="badge bg-{{ 'success' if upload.scans[0].status == 'completed' else 'warning' if upload.scans[0].status == 'in_progress' else 'danger' if upload.scans[0].status == 'failed' else 'secondary' }}">
+                                    {{ upload.scans[0].status.replace('_', ' ').title() }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">No Scan Found</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if upload.scans and upload.scans[0].status == 'completed' %}
+                                <a href="{{ url_for('view_scan', scan_id=upload.scans[0].id) }}"
+                                    class="btn btn-primary btn-sm">View Results</a>
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>You haven't uploaded any files yet.</p>
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload File</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

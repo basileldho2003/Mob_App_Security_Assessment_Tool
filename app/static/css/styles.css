@@ -1,0 +1,157 @@
+/* General Page Styling */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+/* Navigation Bar Styling */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #d3d3d3;
+}
+
+/* Card Styling */
+.card-header {
+    font-size: 1.25rem;
+    font-weight: bold;
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.card-body {
+    font-size: 1rem;
+}
+
+/* Form Styling */
+.form-control {
+    font-size: 1rem;
+    padding: 0.75rem;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+/* Table Styling */
+.table thead th {
+    background-color: #343a40;
+    color: white;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Flash Message Alert Styling */
+.alert-container {
+    margin-top: 15px;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Error Page Styling */
+.card-header.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.card-footer {
+    background-color: #f8f9fa;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Badge Colors */
+.badge-info {
+    background-color: #17a2b8;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+}
+
+/* Button Styling */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-success {
+    font-weight: 500;
+    padding: 10px 15px;
+    transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover,
+.btn-success:hover {
+    opacity: 0.9;
+}
+
+/* Footer Styling */
+footer {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 15px 0;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Jumbotron Styling */
+.jumbotron {
+    padding: 2rem 1rem;
+    background-color: #e9ecef;
+    border-radius: 0.5rem;
+}
+
+.jumbotron h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.jumbotron p.lead {
+    font-size: 1.25rem;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

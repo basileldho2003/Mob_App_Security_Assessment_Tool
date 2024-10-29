@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Mobile App Security Tool{% endblock %}
+
+{% block content %}
+<div class="jumbotron mt-4">
+    <h1 class="display-4">Welcome to the Mobile App Security Tool</h1>
+    <p class="lead">This tool helps you assess and analyze mobile application security to identify vulnerabilities and
+        propose improvements in encryption, data storage, and secure coding practices.</p>
+    <hr class="my-4">
+    <p>Sign up or log in to start securing your mobile apps. You can upload APK files for analysis and generate detailed
+        reports on the detected vulnerabilities.</p>
+    {% if not session.get('user_id') %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('signup') }}" role="button">Sign Up</a>
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">Log In</a>
+    {% else %}
+    <a class="btn btn-success btn-lg" href="{{ url_for('dashboard') }}" role="button">Go to Dashboard</a>
+    {% endif %}
+</div>
+{% endblock %}
