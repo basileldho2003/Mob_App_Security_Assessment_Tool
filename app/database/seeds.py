@@ -14,42 +14,68 @@ def seed_data():
     """Seed initial data into the database."""
 
     # Add an admin user if not already present
-    user = User.query.filter_by(id=1).first()
-    if not user:
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
         admin_user = User(
-            id=1,  # Explicitly set the ID to 1 for demonstration purposes
             username='admin',
             email='admin@example.com',
-            password_hash=generate_password_hash('admin123'),  # Default password
+            password_hash=generate_password_hash('admin123'),  # Default password for admin
             role='admin'
         )
         db.session.add(admin_user)
-        db.session.commit()  # Commit to get the new user ID
+        db.session.commit()
 
-    # Create an upload record if not already present
-    upload = Upload.query.filter_by(id=1).first()
-    if not upload:
-        new_upload = Upload(
-            id=1,  # Explicitly set the ID to 1 for demonstration purposes
-            user_id=1,  # Ensure this user ID also exists
-            apk_file_name="example.apk"
+    # Add a regular user if not already present
+    regular_user = User.query.filter_by(username='user').first()
+    if not regular_user:
+        regular_user = User(
+            username='user',
+            email='user@example.com',
+            password_hash=generate_password_hash('user123'),  # Default password for regular user
+            role='user'
         )
-        db.session.add(new_upload)
-        db.session.commit()  # Commit to get the new upload ID
+        db.session.add(regular_user)
+        db.session.commit()
 
-    # Create a scan record if not already present
-    scan = Scan.query.filter_by(id=1).first()
-    if not scan:
-        new_scan = Scan(
-            id=1,  # Explicitly set the ID to 1 for demonstration purposes
-            upload_id=1,  # Make sure this ID matches an existing upload record
+    # Create an upload and scan record for the admin user if not already present
+    admin_upload = Upload.query.filter_by(user_id=admin_user.id).first()
+    if not admin_upload:
+        admin_upload = Upload(
+            user_id=admin_user.id,
+            apk_file_name="admin_example.apk",
+            upload_date=datetime.now()
+        )
+        db.session.add(admin_upload)
+        db.session.commit()
+
+        admin_scan = Scan(
+            upload_id=admin_upload.id,
             scan_date=datetime.now(),
             status='completed'
         )
-        db.session.add(new_scan)
-        db.session.commit()  # Commit to get the new scan ID
+        db.session.add(admin_scan)
+        db.session.commit()
 
-    # Add sample payloads for testing
+    # Create an upload and scan record for the regular user if not already present
+    regular_upload = Upload.query.filter_by(user_id=regular_user.id).first()
+    if not regular_upload:
+        regular_upload = Upload(
+            user_id=regular_user.id,
+            apk_file_name="user_example.apk",
+            upload_date=datetime.now()
+        )
+        db.session.add(regular_upload)
+        db.session.commit()
+
+        regular_scan = Scan(
+            upload_id=regular_upload.id,
+            scan_date=datetime.now(),
+            status='in_progress'
+        )
+        db.session.add(regular_scan)
+        db.session.commit()
+
+    # Add sample payloads for testing if not already present
     if not Payload.query.first():
         sample_payloads = [
             {
@@ -81,11 +107,11 @@ def seed_data():
             )
             db.session.add(payload)
 
-    # Add sample source code issues for demonstration (ensure a scan ID of 1 exists)
+    # Add sample source code issues for demonstration (ensure a scan exists)
     if not SourceCodeIssue.query.first():
         sample_issues = [
             {
-                "scan_id": 1,  # Ensure a scan with ID 1 exists
+                "scan_id": admin_scan.id,  # Assign to admin's scan
                 "file_path": "MainActivity.java",
                 "line_number": 45,
                 "issue_type": "JavaScript Enabled",
@@ -95,7 +121,7 @@ def seed_data():
                 "recommendation": "Disable JavaScript if not required, or ensure untrusted content is not loaded."
             },
             {
-                "scan_id": 1,
+                "scan_id": admin_scan.id,
                 "file_path": "MainActivity.java",
                 "line_number": 60,
                 "issue_type": "Empty Catch Block",
