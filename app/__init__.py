@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from app.database import init_db
+from app.database import db
 # Initialize the database
 
 def create_app():
@@ -8,7 +8,7 @@ def create_app():
     app.config.from_object(Config)
 
     # Initialize the database with the app
-    init_db(app)
+    db.init_app(app)
 
     # Import routes and register them without using blueprints
     with app.app_context():
