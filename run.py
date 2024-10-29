@@ -1,5 +1,5 @@
 from app import create_app, db
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 
 # Initialize the app
 app = create_app()
