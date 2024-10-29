@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, session
+from flask import render_template, redirect, url_for, flash, session
 from app.database import db
 from app.database.models import User, Upload, Scan  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
@@ -65,7 +65,8 @@ def upload():
         # Handle file upload
         file = form.apk_file.data
         filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
 
         # Create a new upload record in the database
         new_upload = Upload(
@@ -74,11 +75,25 @@ def upload():
         )
         db.session.add(new_upload)
         db.session.commit()
-        
-        flash("File uploaded successfully!", "success")
+
+        # Create a new scan record in the database and set the initial status to "queued"
+        new_scan = Scan(
+            upload_id=new_upload.id,
+            status='queued'
+        )
+        db.session.add(new_scan)
+        db.session.commit()
+
+        # You can later update this status after actual scanning is completed
+        # For example:
+        # new_scan.status = 'completed'
+        # db.session.commit()
+
+        flash("File uploaded and scan initiated successfully!", "success")
         return redirect(url_for('dashboard'))
 
     return render_template('upload.html', form=form)
+
 
 # Route for logout
 @app.route('/logout')
