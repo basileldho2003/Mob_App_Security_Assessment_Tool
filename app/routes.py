@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, session
 from app.database import db
-from app.database.models import User, Upload, Scan, SourceCodeIssue  # Import necessary models
+from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app
@@ -100,16 +100,20 @@ def upload():
     return render_template('upload.html', form=form)
 
 # Route for viewing the results of a specific scan
-@app.route('/scan/<int:scan_id>')
+@app.route('/view_scan/<int:scan_id>')
 def view_scan(scan_id):
-    if 'user_id' not in session:
-        flash("Please log in to access this page.", "warning")
-        return redirect(url_for('login'))
-
     scan = Scan.query.get_or_404(scan_id)
-    source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan_id).all()
+    manifest_issues = ManifestIssue.query.filter_by(scan_id=scan.id).all()
+    source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id).all()
+    webview_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id, issue_category='webview').all()
+    payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
+    
+    return render_template('scan_results.html', scan=scan, 
+                           manifest_issues=manifest_issues, 
+                           source_code_issues=source_code_issues, 
+                           webview_issues=webview_issues, 
+                           payload_matches=payload_matches)
 
-    return render_template('scan_results.html', scan=scan, source_code_issues=source_code_issues)
 
 # Route for logout
 @app.route('/logout')
