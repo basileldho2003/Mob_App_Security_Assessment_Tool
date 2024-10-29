@@ -2,14 +2,15 @@ from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
 import os
 
-def generate_html_report(scan_id, manifest_issues, source_code_issues, output_dir):
+def generate_html_report(scan_id, manifest_issues, source_code_issues, webview_issues, output_dir):
     """
-    Generate an HTML report based on the scan results.
+    Generate an HTML report based on the scan results, including WebView security issues.
     
     Parameters:
     - scan_id: The ID of the scan being reported.
     - manifest_issues: A list of manifest issues detected.
     - source_code_issues: A list of source code issues detected.
+    - webview_issues: A list of WebView security issues detected.
     - output_dir: The directory to save the HTML report.
     
     Returns:
@@ -27,7 +28,8 @@ def generate_html_report(scan_id, manifest_issues, source_code_issues, output_di
     html_content = template.render(
         scan_id=scan_id,
         manifest_issues=manifest_issues,
-        source_code_issues=source_code_issues
+        source_code_issues=source_code_issues,
+        webview_issues=webview_issues
     )
 
     # Save the rendered HTML content to a file

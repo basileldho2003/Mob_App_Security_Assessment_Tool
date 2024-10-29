@@ -1,4 +1,4 @@
-def generate_results(scan_id, manifest_issues, source_code_issues, payload_matches):
+def generate_results(scan_id, manifest_issues, source_code_issues, webview_issues, payload_matches):
     """
     Generate consolidated results based on the scan analysis.
 
@@ -6,6 +6,7 @@ def generate_results(scan_id, manifest_issues, source_code_issues, payload_match
     - scan_id: The ID of the scan being reported.
     - manifest_issues: A list of manifest issues detected.
     - source_code_issues: A list of source code issues detected.
+    - webview_issues: A list of WebView security issues detected.
     - payload_matches: A list of matched payloads detected during the scan.
 
     Returns:
@@ -16,10 +17,12 @@ def generate_results(scan_id, manifest_issues, source_code_issues, payload_match
         "scan_id": scan_id,
         "manifest_issues": manifest_issues,
         "source_code_issues": source_code_issues,
+        "webview_issues": webview_issues,
         "payload_matches": payload_matches,
         "summary": {
             "total_manifest_issues": len(manifest_issues),
             "total_source_code_issues": len(source_code_issues),
+            "total_webview_issues": len(webview_issues),
             "total_payload_matches": len(payload_matches),
             "high_severity_issues": 0,
             "medium_severity_issues": 0,
@@ -34,6 +37,10 @@ def generate_results(scan_id, manifest_issues, source_code_issues, payload_match
 
     # Calculate severity counts for source code issues
     for issue in source_code_issues:
+        results["summary"][f"{issue['severity']}_severity_issues"] += 1
+
+    # Calculate severity counts for WebView issues
+    for issue in webview_issues:
         results["summary"][f"{issue['severity']}_severity_issues"] += 1
 
     # Calculate severity counts for payload matches (if they have severity levels)

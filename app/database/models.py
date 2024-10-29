@@ -66,6 +66,18 @@ class SourceCodeIssue(db.Model):
     issue_type = db.Column(db.String(255), nullable=False)
     issue_detail = db.Column(db.Text, nullable=False)
     severity = db.Column(db.Enum('low', 'medium', 'high', 'critical', name='severity_levels'), nullable=False)
+    issue_category = db.Column(db.Enum('webview', 'logic', 'security', 'performance', name='issue_categories'), nullable=True)
+    recommendation = db.Column(db.Text, nullable=True)
+
+    def __init__(self, scan_id, file_path, line_number, issue_type, issue_detail, severity, issue_category=None, recommendation=None):
+        self.scan_id = scan_id
+        self.file_path = file_path
+        self.line_number = line_number
+        self.issue_type = issue_type
+        self.issue_detail = issue_detail
+        self.severity = severity
+        self.issue_category = issue_category
+        self.recommendation = recommendation
 
 
 class Payload(db.Model):

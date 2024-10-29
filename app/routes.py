@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, session
 from app.database import db
-from app.database.models import User, Upload, Scan  # Import necessary models
+from app.database.models import User, Upload, Scan, SourceCodeIssue  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app
@@ -51,7 +51,9 @@ def dashboard():
     if 'user_id' not in session:
         flash("Please log in to access this page.", "warning")
         return redirect(url_for('login'))
-    return render_template('dashboard.html')
+    
+    user_uploads = Upload.query.filter_by(user_id=session['user_id']).all()
+    return render_template('dashboard.html', uploads=user_uploads)
 
 # Route for uploading APK files
 @app.route('/upload', methods=['GET', 'POST'])
@@ -65,8 +67,7 @@ def upload():
         # Handle file upload
         file = form.apk_file.data
         filename = file.filename
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # Create a new upload record in the database
         new_upload = Upload(
@@ -84,16 +85,25 @@ def upload():
         db.session.add(new_scan)
         db.session.commit()
 
-        # You can later update this status after actual scanning is completed
-        # For example:
-        # new_scan.status = 'completed'
-        # db.session.commit()
+        # Initiate the scanning process here (if applicable)
+        # e.g., trigger a background task to analyze the APK file
 
         flash("File uploaded and scan initiated successfully!", "success")
         return redirect(url_for('dashboard'))
 
     return render_template('upload.html', form=form)
 
+# Route for viewing the results of a specific scan
+@app.route('/scan/<int:scan_id>')
+def view_scan(scan_id):
+    if 'user_id' not in session:
+        flash("Please log in to access this page.", "warning")
+        return redirect(url_for('login'))
+
+    scan = Scan.query.get_or_404(scan_id)
+    source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan_id).all()
+
+    return render_template('scan_results.html', scan=scan, source_code_issues=source_code_issues)
 
 # Route for logout
 @app.route('/logout')
