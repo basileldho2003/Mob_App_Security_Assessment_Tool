@@ -1,10 +1,15 @@
-from flask import render_template, redirect, url_for, flash, session
+from flask import render_template, redirect, url_for, flash, session, request
 from app.database import db
 from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app
 import os
+from datetime import datetime
+from app.decompilation.decompile import decompile_apk
+from app.decompilation.manifest_scanner import scan_manifest
+from app.decompilation.source_code_analyzer import analyze_source_code
+from app.security.result_generator import generate_report
 
 # Route for the home page
 @app.route('/')
@@ -21,6 +26,7 @@ def login():
         if user and check_password_hash(user.password_hash, form.password.data):
             session['user_id'] = user.id
             session['username'] = user.username
+            session['role'] = user.role
             flash(f"Welcome back, {user.username}!", "success")
             return redirect(url_for('dashboard'))
         else:
@@ -50,7 +56,6 @@ def signup():
             return redirect(url_for('login'))
     return render_template('signup.html', form=form)
 
-
 # Route for the dashboard (after login)
 @app.route('/dashboard')
 def dashboard():
@@ -79,7 +84,8 @@ def upload():
         # Handle file upload
         file = form.apk_file.data
         filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(upload_path)
 
         # Create a new upload record in the database
         new_upload = Upload(
@@ -97,10 +103,69 @@ def upload():
         db.session.add(new_scan)
         db.session.commit()
 
+        # Process the uploaded APK file
+        process_apk(new_scan.id)
+
         flash("File uploaded and scan initiated successfully!", "success")
         return redirect(url_for('dashboard'))
 
     return render_template('upload.html', form=form)
+
+def process_apk(scan_id):
+    """Process the uploaded APK without Celery (synchronously)."""
+    scan = Scan.query.get(scan_id)
+    if not scan:
+        return
+
+    try:
+        # Update scan status to in_progress
+        scan.status = 'in_progress'
+        db.session.commit()
+
+        # Fetch the upload path from the associated Upload record
+        upload = scan.upload
+        apk_file_path = os.path.join(app.config['UPLOAD_FOLDER'], upload.apk_file_name)
+
+        # Step 1: Decompile the APK file
+        decompiled_path = decompile_apk(apk_file_path)
+
+        # Step 2: Scan the AndroidManifest.xml file
+        manifest_issues = scan_manifest(os.path.join(decompiled_path, 'AndroidManifest.xml'))
+        for issue in manifest_issues:
+            manifest_issue = ManifestIssue(
+                scan_id=scan.id,
+                issue_type=issue['issue_type'],
+                issue_detail=issue['description'],
+                severity=issue['severity']
+            )
+            db.session.add(manifest_issue)
+
+        # Step 3: Analyze Java source code
+        source_code_issues = analyze_source_code(decompiled_path)
+        for issue in source_code_issues:
+            source_code_issue = SourceCodeIssue(
+                scan_id=scan.id,
+                file_path=issue['file_path'],
+                line_number=issue['line_number'],
+                issue_type=issue['issue_type'],
+                issue_detail=issue['description'],
+                severity=issue['severity'],
+                issue_category=issue.get('category', 'general'),
+                recommendation=issue.get('recommendation', '')
+            )
+            db.session.add(source_code_issue)
+
+        # Step 4: Generate a final report using result_generator
+        generate_report(scan.id, manifest_issues, source_code_issues)
+
+        # Update scan status to completed
+        scan.status = 'completed'
+        scan.scan_date = datetime.utcnow()
+        db.session.commit()
+    except Exception as e:
+        scan.status = 'failed'
+        db.session.commit()
+        print(f"Error processing APK: {e}")
 
 # Route for viewing the results of a specific scan
 @app.route('/view_scan/<int:scan_id>')
@@ -116,7 +181,6 @@ def view_scan(scan_id):
                            source_code_issues=source_code_issues, 
                            webview_issues=webview_issues, 
                            payload_matches=payload_matches)
-
 
 # Route for logout
 @app.route('/logout')
