@@ -32,18 +32,24 @@ def login():
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data)
-        new_user = User(
-            username=form.username.data,
-            email=form.email.data,
-            password_hash=hashed_password,
-            role='user'
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Your account has been created! You can now log in.", "success")
-        return redirect(url_for('login'))
+        # Check if the username or email already exists
+        existing_user = User.query.filter((User.username == form.username.data) | (User.email == form.email.data)).first()
+        if existing_user:
+            flash('Username or email already exists. Please choose another one.', 'danger')
+        else:
+            hashed_password = generate_password_hash(form.password.data)
+            new_user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password_hash=hashed_password,
+                role='user'
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Your account has been created! You can now log in.', 'success')
+            return redirect(url_for('login'))
     return render_template('signup.html', form=form)
+
 
 # Route for the dashboard (after login)
 @app.route('/dashboard')
@@ -90,9 +96,6 @@ def upload():
         )
         db.session.add(new_scan)
         db.session.commit()
-
-        # Initiate the scanning process here (if applicable)
-        # e.g., trigger a background task to analyze the APK file
 
         flash("File uploaded and scan initiated successfully!", "success")
         return redirect(url_for('dashboard'))
