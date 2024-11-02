@@ -10,7 +10,10 @@ from app.database.models import User
 from werkzeug.security import generate_password_hash
 
 def seed_data():
-    """Seed only the admin user into the database."""
+    """Create all tables and seed only the admin user into the database."""
+
+    # Create all tables if they don't exist
+    db.create_all()
 
     # Add an admin user if not already present
     admin_user = User.query.filter_by(username='admin').first()
