@@ -7,7 +7,7 @@ from flask import current_app as app
 import os
 from datetime import datetime
 from app.decompilation.decompile import decompile_apk
-from app.decompilation.manifest_scanner import scan_manifest
+from app.decompilation.manifest_scanner import analyze_manifest
 from app.decompilation.source_code_analyzer import analyze_source_code
 from app.security.result_generator import generate_report
 
@@ -130,7 +130,7 @@ def process_apk(scan_id):
         decompiled_path = decompile_apk(apk_file_path)
 
         # Step 2: Scan the AndroidManifest.xml file
-        manifest_issues = scan_manifest(os.path.join(decompiled_path, 'AndroidManifest.xml'))
+        manifest_issues = analyze_manifest(os.path.join(decompiled_path, 'AndroidManifest.xml'))
         for issue in manifest_issues:
             manifest_issue = ManifestIssue(
                 scan_id=scan.id,
