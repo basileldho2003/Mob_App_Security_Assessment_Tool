@@ -140,7 +140,7 @@ def upload():
 def process_apk(scan_id):
     """
     Process the APK file for security analysis.
-    - Decompile APK
+    - Decompile APK with apktool and JADX
     - Analyze AndroidManifest.xml
     - Analyze Java source code
     - Apply YARA rules for payload scanning
@@ -159,11 +159,23 @@ def process_apk(scan_id):
         upload = scan.upload
         apk_file_path = os.path.join(app.config['UPLOAD_FOLDER'], upload.apk_file_name)
 
-        # Step 1: Decompile the APK file
-        decompiled_path = decompile_apk(apk_file_path)
+        # Define output directory for decompiled files
+        output_dir = os.path.join(app.config['UPLOAD_FOLDER'], f"decompiled_{upload.id}")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Step 1: Decompile the APK file using both apktool and JADX
+        apktool_output_dir, jadx_output_dir = decompile_apk(apk_file_path, output_dir)
+
+        # Ensure decompilation was successful
+        if not apktool_output_dir or not jadx_output_dir:
+            scan.status = 'failed'
+            db.session.commit()
+            print("Decompilation failed. Exiting APK processing.")
+            return
 
         # Step 2: Scan the AndroidManifest.xml file for issues
-        manifest_issues = analyze_manifest(os.path.join(decompiled_path, 'AndroidManifest.xml'))
+        manifest_path = os.path.join(apktool_output_dir, 'AndroidManifest.xml')
+        manifest_issues = analyze_manifest(manifest_path)
         for issue in manifest_issues:
             manifest_issue = ManifestIssue(
                 scan_id=scan.id,
@@ -174,7 +186,7 @@ def process_apk(scan_id):
             db.session.add(manifest_issue)
 
         # Step 3: Analyze Java source code for security vulnerabilities
-        source_code_issues = analyze_source_code(decompiled_path)
+        source_code_issues = analyze_source_code(jadx_output_dir)
         for issue in source_code_issues:
             source_code_issue = SourceCodeIssue(
                 scan_id=scan.id,
@@ -191,7 +203,7 @@ def process_apk(scan_id):
         # Step 4: Apply YARA rules to detect specific payloads
         rules_dir = app.config['YARA_RULES_FOLDER']
         yara_rules = load_yara_rules(rules_dir)
-        payload_matches = scan_with_yara(decompiled_path, yara_rules)
+        payload_matches = scan_with_yara(jadx_output_dir, yara_rules)
         for match in payload_matches:
             payload_match = ScanPayloadMatch(
                 scan_id=scan.id,
@@ -207,13 +219,15 @@ def process_apk(scan_id):
 
         # Mark scan as completed and save scan date
         scan.status = 'completed'
-        scan.scan_date = get_ist_time
+        scan.scan_date = get_ist_time()
         db.session.commit()
     except Exception as e:
         # Mark scan as failed if any error occurs
         scan.status = 'failed'
         db.session.commit()
         print(f"Error processing APK: {e}")
+
+
 
 # Route for viewing scan results
 @app.route('/view_scan/<int:scan_id>')
