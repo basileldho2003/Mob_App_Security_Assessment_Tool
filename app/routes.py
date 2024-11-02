@@ -4,13 +4,18 @@ from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, S
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app
-import os
-from datetime import datetime
+from datetime import *
 from app.decompilation.decompile import decompile_apk
 from app.decompilation.manifest_scanner import analyze_manifest
 from app.decompilation.source_code_analyzer import analyze_source_code
 from app.security.result_generator import generate_results
 from app.security.payload_scanner import load_yara_rules, scan_with_yara
+import os, pytz
+
+def get_ist_time():
+    utc_time = datetime.now(timezone.utc)
+    ist_time = utc_time.replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Kolkata'))
+    return ist_time
 
 # Route for the home page
 @app.route('/')
@@ -202,7 +207,7 @@ def process_apk(scan_id):
 
         # Mark scan as completed and save scan date
         scan.status = 'completed'
-        scan.scan_date = datetime.utcnow()
+        scan.scan_date = get_ist_time
         db.session.commit()
     except Exception as e:
         # Mark scan as failed if any error occurs
