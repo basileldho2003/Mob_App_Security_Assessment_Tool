@@ -207,6 +207,7 @@ def process_apk(scan_id):
         for match in payload_matches:
             payload_match = ScanPayloadMatch(
                 scan_id=scan.id,
+                payload_id=match['payload_id'],
                 file_path=match['file_path'],
                 line_number=match.get('line_number'),
                 match_detail=match['match_detail'],
@@ -226,8 +227,6 @@ def process_apk(scan_id):
         scan.status = 'failed'
         db.session.commit()
         print(f"Error processing APK: {e}")
-
-
 
 # Route for viewing scan results
 @app.route('/view_scan/<int:scan_id>')
