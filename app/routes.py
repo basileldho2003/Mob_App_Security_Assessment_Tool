@@ -202,14 +202,14 @@ def process_apk(scan_id):
 
         # Step 4: Apply YARA rules to detect specific payloads
         rules_dir = app.config['YARA_RULES_FOLDER']
-        yara_rules = load_yara_rules(rules_dir)
-        payload_matches = scan_with_yara(jadx_output_dir, yara_rules)
+        yara_rules, payload_map = load_yara_rules(rules_dir)  # Load both rules and payload_map
+        payload_matches = scan_with_yara(jadx_output_dir, yara_rules, payload_map)  # Pass payload_map here
         for match in payload_matches:
             payload_match = ScanPayloadMatch(
                 scan_id=scan.id,
                 payload_id=match['payload_id'],
                 file_path=match['file_path'],
-                line_number=match.get('line_number'),
+                line_number=match.get('line_number', -1),  # Provide a default value if line_number is None
                 match_detail=match['match_detail'],
                 severity=match['severity']
             )
