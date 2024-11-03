@@ -101,6 +101,7 @@ class ScanPayloadMatch(db.Model):
     file_path = db.Column(db.String(255), nullable=False)
     line_number = db.Column(db.Integer, nullable=False)
     match_detail = db.Column(db.Text, nullable=False)
+    severity = db.Column(db.Enum('low', 'medium', 'high', 'critical', name='severity_levels'), nullable=True)
 
 
 class Log(db.Model):
