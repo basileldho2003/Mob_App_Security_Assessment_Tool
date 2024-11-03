@@ -6,6 +6,8 @@ body {
 
 .container {
     margin-top: 20px;
+    max-width: 100%;
+    /* Ensure container doesn't exceed screen width */
 }
 
 /* Navigation Bar Styling */
@@ -33,6 +35,21 @@ body {
 
 .card-body {
     font-size: 1rem;
+}
+
+/* List Group Item Styling for Overflow Control */
+.list-group-item {
+    overflow-wrap: break-word;
+    /* Wrap long words to fit within the container */
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Ensuring text wrap in scan result sections */
+.text-wrap {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Form Styling */
