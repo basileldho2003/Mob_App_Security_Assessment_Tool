@@ -31,7 +31,7 @@ def load_yara_rules(rules_dir):
                         db.session.add(payload)
                         db.session.commit()
 
-                    payload_map[file] = payload.id  # Map rule name to payload ID
+                    payload_map[file] = payload  # Map rule name to payload object
                 except yara.YaraSyntaxError as e:
                     print(f"Error compiling YARA rule at {rule_path}: {e}")
 
@@ -44,7 +44,7 @@ def scan_with_yara(source_code_dir, rules, payload_map):
     Parameters:
     - source_code_dir: Path to the directory containing source code files.
     - rules: Compiled YARA rules object.
-    - payload_map: Mapping of rule names to payload IDs.
+    - payload_map: Mapping of rule names to payload objects.
 
     Returns:
     - A list of payload matches with their details.
@@ -63,15 +63,16 @@ def scan_with_yara(source_code_dir, rules, payload_map):
                         for rule_name, rule in rules.items():
                             rule_matches = rule.match(data=line_content)
                             for match in rule_matches:
-                                # Use payload_id from the mapping
-                                payload_id = payload_map.get(rule_name)
-                                matches.append({
-                                    "file_path": file_path,
-                                    "line_number": line_number,
-                                    "match_detail": f"Matched YARA rule '{match.rule}' in file '{file}'",
-                                    "severity": "high",  # Set severity or get it from payload if needed
-                                    "payload_id": payload_id  # Add payload_id for the match
-                                })
+                                # Use payload object from the mapping
+                                payload = payload_map.get(rule_name)
+                                if payload:
+                                    matches.append({
+                                        "file_path": file_path,
+                                        "line_number": line_number,
+                                        "match_detail": f"Matched YARA rule '{match.rule}' in file '{file}'",
+                                        "severity": payload.severity,  # Get severity from the payload object
+                                        "payload_id": payload.id  # Add payload_id for the match
+                                    })
                 except Exception as e:
                     print(f"Error reading or scanning file {file_path}: {e}")
 
