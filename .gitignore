@@ -4,3 +4,4 @@ __pycache__/
 *.apk
 migrations/
 uploads/*
+reports/
