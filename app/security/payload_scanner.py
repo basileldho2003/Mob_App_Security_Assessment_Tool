@@ -2,6 +2,7 @@ import os
 import yara
 from app.database.models import Payload
 from app.database import db
+from binaryornot.check import is_binary
 
 def load_yara_rules(rules_dir):
     """
@@ -32,7 +33,7 @@ def load_yara_rules(rules_dir):
                         db.session.commit()
 
                     payload_map[file] = payload  # Map rule name to payload object
-                except yara.YaraSyntaxError as e:
+                except yara.SyntaxError as e:
                     print(f"Error compiling YARA rule at {rule_path}: {e}")
 
     return rules, payload_map
@@ -55,6 +56,8 @@ def scan_with_yara(source_code_dir, rules, payload_map):
     for root, _, files in os.walk(source_code_dir):
         for file in files:
             file_path = os.path.join(root, file)
+            if is_binary(file_path):
+                continue
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 try:
                     # Read file line-by-line to detect YARA matches with line numbers

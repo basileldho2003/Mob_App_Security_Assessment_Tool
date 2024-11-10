@@ -39,7 +39,6 @@ class Scan(db.Model):
     scan_date = db.Column(db.DateTime, default=get_ist_time)
     status = db.Column(db.Enum('queued', 'in_progress', 'completed', 'failed', name='scan_status'), default='queued', nullable=False)
     result = db.Column(db.Text, nullable=True)
-
     manifest_issues = db.relationship('ManifestIssue', backref='scan', lazy=True)
     source_code_issues = db.relationship('SourceCodeIssue', backref='scan', lazy=True)
     scan_payload_matches = db.relationship('ScanPayloadMatch', backref='scan', lazy=True)

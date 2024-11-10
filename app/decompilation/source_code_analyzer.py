@@ -27,10 +27,9 @@ def analyze_source_code(source_code_dir):
 
     return issues
 
-
 def analyze_java_file(file_path, source_code):
     """
-    Perform basic analysis on a Java file using javalang-ext to detect potential issues, including WebView security.
+    Perform basic analysis on a Java file using javalang to detect potential issues, including WebView security.
     
     Parameters:
     - file_path: Path to the Java file.
@@ -42,75 +41,76 @@ def analyze_java_file(file_path, source_code):
     issues = []
 
     try:
-        # Parse the source code using javalang-ext
+        # Parse the source code
         tree = javalang.parse.parse(source_code)
 
-        # Look for common insecure coding practices (simple examples)
+        # Check for empty catch blocks
         for _, method in tree.filter(javalang.tree.MethodDeclaration):
-            # Example: Check for empty catch blocks
-            if any(isinstance(stmt, javalang.tree.BlockStatement) and len(stmt.statements) == 0 for stmt in method.body):
-                issues.append({
-                    "file_path": file_path,
-                    "line_number": method.position.line,
-                    "issue_type": "Empty Catch Block",
-                    "issue_detail": f"Method '{method.name}' contains an empty catch block, which may hide exceptions.",
-                    "severity": "low"
-                })
+            if method.body:
+                if any(isinstance(stmt, javalang.tree.BlockStatement) and stmt.statements is not None and len(stmt.statements) == 0 for stmt in method.body):
+                    issues.append({
+                        "file_path": file_path,
+                        "line_number": getattr(method.position, 'line', -1),
+                        "issue_type": "Empty Catch Block",
+                        "description": f"Method '{method.name}' contains an empty catch block, which may hide exceptions.",
+                        "severity": "low",
+                        "issue_category": 'logic'
+                    })
 
-            # Example: Detect hard-coded credentials in the source code (simple regex)
+            # Detect hard-coded credentials in the method name
             if "password" in method.name.lower() or "secret" in method.name.lower():
                 issues.append({
                     "file_path": file_path,
-                    "line_number": method.position.line,
+                    "line_number": getattr(method.position, 'line', -1),
                     "issue_type": "Hard-coded Credential",
-                    "issue_detail": f"Method '{method.name}' may contain hard-coded credentials, which is a security risk.",
-                    "severity": "high"
+                    "description": f"Method '{method.name}' may contain hard-coded credentials, which is a security risk.",
+                    "severity": "high",
+                    "issue_category": 'security'
                 })
 
         # Check for WebView security issues in method invocations
         for _, method_invocation in tree.filter(javalang.tree.MethodInvocation):
-            if method_invocation.member == "setJavaScriptEnabled":
-                if "true" in str(method_invocation.arguments):
-                    issues.append({
-                        "file_path": file_path,
-                        "line_number": method_invocation.position.line,
-                        "issue_type": "JavaScript Enabled",
-                        "issue_detail": "JavaScript is enabled in WebView, which may expose the app to security risks.",
-                        "severity": "high"
-                    })
+            if method_invocation.member == "setJavaScriptEnabled" and "true" in str(method_invocation.arguments):
+                issues.append({
+                    "file_path": file_path,
+                    "line_number": getattr(method_invocation.position, 'line', -1),
+                    "issue_type": "JavaScript Enabled",
+                    "description": "JavaScript is enabled in WebView, which may expose the app to security risks.",
+                    "severity": "high",
+                    "issue_category": 'webview'
+                })
 
             if method_invocation.member == "addJavascriptInterface":
                 issues.append({
                     "file_path": file_path,
-                    "line_number": method_invocation.position.line,
+                    "line_number": getattr(method_invocation.position, 'line', -1),
                     "issue_type": "JavaScript Interface",
-                    "issue_detail": "JavaScript interface is added to WebView, which may expose the app to security risks.",
-                    "severity": "high"
+                    "description": "JavaScript interface is added to WebView, which may expose the app to security risks.",
+                    "severity": "high",
+                    "issue_category": 'webview'
                 })
 
-            if method_invocation.member == "setWebContentsDebuggingEnabled":
-                if "true" in str(method_invocation.arguments):
-                    issues.append({
-                        "file_path": file_path,
-                        "line_number": method_invocation.position.line,
-                        "issue_type": "WebView Debugging Enabled",
-                        "issue_detail": "WebView debugging is enabled, which should not be allowed in production builds.",
-                        "severity": "critical"
-                    })
+            if method_invocation.member == "setWebContentsDebuggingEnabled" and "true" in str(method_invocation.arguments or ""):
+                issues.append({
+                    "file_path": file_path,
+                    "line_number": getattr(method_invocation.position, 'line', -1),
+                    "issue_type": "WebView Debugging Enabled",
+                    "description": "WebView debugging is enabled, which should not be allowed in production builds.",
+                    "severity": "critical",
+                    "issue_category": 'webview'
+                })
 
-            if method_invocation.member == "setAllowFileAccess":
-                if "true" in str(method_invocation.arguments):
-                    issues.append({
-                        "file_path": file_path,
-                        "line_number": method_invocation.position.line,
-                        "issue_type": "File Access Enabled",
-                        "issue_detail": "File access is enabled in WebView, which can expose sensitive files.",
-                        "severity": "high"
-                    })
+            if method_invocation.member == "setAllowFileAccess" and "true" in str(method_invocation.arguments or ""):
+                issues.append({
+                    "file_path": file_path,
+                    "line_number": getattr(method_invocation.position, 'line', -1),
+                    "issue_type": "File Access Enabled",
+                    "description": "File access is enabled in WebView, which can expose sensitive files.",
+                    "severity": "high",
+                    "issue_category": 'webview'
+                })
 
     except javalang.parser.JavaSyntaxError as e:
         print(f"Syntax error in {file_path}: {e}")
     except Exception as e:
         print(f"Error analyzing {file_path}: {e}")
-
-    return issues

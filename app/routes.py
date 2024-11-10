@@ -1,4 +1,6 @@
-from flask import render_template, redirect, url_for, flash, session, request
+from io import BytesIO
+from flask import make_response, render_template, redirect, url_for, flash, session
+from weasyprint import HTML
 from app.database import db
 from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
@@ -243,6 +245,32 @@ def view_scan(scan_id):
                            manifest_issues=manifest_issues, 
                            source_code_issues=source_code_issues, 
                            payload_matches=payload_matches)
+
+@app.route('/download_pdf/<int:scan_id>')
+def download_pdf(scan_id):
+    """
+    Render the scan results page for a specific scan ID, displaying manifest issues, source code issues, and payload matches.
+    """
+    scan = Scan.query.get_or_404(scan_id)
+    manifest_issues = ManifestIssue.query.filter_by(scan_id=scan.id).all()
+    source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id).all()
+    payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
+    
+    html_content = render_template('report.html', scan=scan, 
+                           manifest_issues=manifest_issues, 
+                           source_code_issues=source_code_issues, 
+                           payload_matches=payload_matches)
+    
+    pdf_file = BytesIO()
+    HTML(string=html_content).write_pdf(pdf_file)
+    pdf_file.seek(0)
+
+    # Create response with PDF file
+    response = make_response(pdf_file.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=scan_results_{scan_id}.pdf'
+    return response
+
 
 # Route for logout
 @app.route('/logout')
