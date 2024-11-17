@@ -3,6 +3,7 @@ from flask import make_response, render_template, redirect, url_for, flash, sess
 from weasyprint import HTML
 from app.database import db
 from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
+from app.decompilation.andro import analyze_apk_with_androguard
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import current_app as app
@@ -122,7 +123,7 @@ def upload():
         )
         db.session.add(new_upload)
         db.session.commit()
-
+        # File uploaded
         # Create scan record and set initial status
         new_scan = Scan(
             upload_id=new_upload.id,
@@ -132,7 +133,8 @@ def upload():
         db.session.commit()
 
         # Process the uploaded APK file synchronously
-        process_apk(new_scan.id)
+        #process_apk(new_scan.id)
+        analyze_apk_with_androguard(upload_path)
 
         flash("File uploaded and scan initiated successfully!", "success")
         return redirect(url_for('dashboard'))
