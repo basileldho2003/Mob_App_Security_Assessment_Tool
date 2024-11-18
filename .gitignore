@@ -5,3 +5,4 @@ __pycache__/
 migrations/
 uploads/*
 reports/
+*.bak
