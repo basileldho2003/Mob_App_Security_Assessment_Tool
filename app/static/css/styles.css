@@ -173,3 +173,15 @@ footer p {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+.social-link i {
+    color: white;
+    /* Default icon color */
+    transition: color 0.3s ease;
+    /* Smooth transition */
+}
+
+.social-link:hover i {
+    color: blue;
+    /* Change to your desired hover color */
+}
