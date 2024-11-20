@@ -6,4 +6,4 @@ migrations/
 uploads/*
 reports/
 *.bak
-output.log
+*.log
