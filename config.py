@@ -24,4 +24,3 @@ class Config:
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
     MAX_CONTENT_LENGTH = 150 * 1024 * 1024  # Maximum file size of 150MB
     YARA_RULES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'yara_rules')  # Path to YARA rules folder
-    REPORT_FOLDER = os.path.join(os.getcwd(), 'reports')

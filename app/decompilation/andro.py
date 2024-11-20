@@ -1,19 +1,22 @@
 import subprocess
 import json
 import os
+from app.database.models import AndroguardAnalysis  # Import the new model
+from app.database import db  # Import the database instance
 
 # Path to the Python interpreter in the Androguard environment
 androguard_path = "/home/basilsvm/test_area/"
-androguard_python = os.path.join(f"{androguard_path}androg", "bin", "python")  # Adjust for Windows: "androguard_env\\Scripts\\python"
-# Path to the Androguard analysis script (saved as analyze_apk_script.py)
-analyze_script = f"{androguard_path}analyze.py"  # Save your Androguard analysis logic in this file.
+androguard_python = os.path.join(f"{androguard_path}androg", "bin", "python")  # Adjust for Windows: "androg\\Scripts\\python"
+# Path to the Androguard analysis script
+analyze_script = f"{androguard_path}analyze.py"
 
-def analyze_apk_with_androguard(apk_path):
+def analyze_apk_with_androguard(apk_path, scan_id):
     """
-    Analyze an APK file using Androguard in a subprocess.
+    Analyze an APK file using Androguard in a subprocess and save results.
 
     Parameters:
     - apk_path: Path to the APK file.
+    - scan_id: ID of the scan to associate the results with.
 
     Returns:
     - A list of detected issues or an error message.
@@ -28,26 +31,56 @@ def analyze_apk_with_androguard(apk_path):
             text=True,
             check=True,
         )
+
+        # print("Raw stdout:", result.stdout)
+
         # Parse the JSON output from the Androguard script
-        print("Completed.")
-        report=json.loads(result.stdout)
-        print(report)
-        return report
+        if result.stdout.strip():
+            issues = json.loads(result.stdout)
+
+            # Save results to the database
+            save_androguard_results(scan_id, issues)
+
+            print("Analysis completed and results saved.")
+            return issues
+        else:
+            error_msg = "No output from analyze.py"
+            save_androguard_results(scan_id, [{"type": "Error", "detail": error_msg, "severity": "critical"}])
+            return [{"type": "Error", "detail": error_msg, "severity": "critical"}]
 
     except subprocess.CalledProcessError as e:
-        return {"error": f"Subprocess failed: {e.stderr}"}
+        error_msg = f"Subprocess error: {e.stderr}"
+        save_androguard_results(scan_id, [{"type": "Error", "detail": error_msg, "severity": "critical"}])
+        return [{"type": "Error", "detail": error_msg, "severity": "critical"}]
+    except json.JSONDecodeError as e:
+        error_msg = f"Invalid JSON output from analyze.py {e}"
+        save_androguard_results(scan_id, [{"type": "Error", "detail": error_msg, "severity": "critical"}])
+        return [{"type": "Error", "detail": error_msg, "severity": "critical"}]
     except Exception as e:
-        return {"error": f"Unexpected error: {str(e)}"}
+        error_msg = f"Unexpected error: {str(e)}"
+        save_androguard_results(scan_id, [{"type": "Error", "detail": error_msg, "severity": "critical"}])
+        return [{"type": "Error", "detail": error_msg, "severity": "critical"}]
 
-# Example usage
-# apk_file_path = f"{androguard_path}/Mini Browser_3.0_APKPure.apk"
-# output = analyze_apk_with_androguard(apk_file_path)
 
-# print("Detected Issues:")
-# if "error" in output:
-#     print(output["error"])
-# else:
-#     for issue in output:
-#         print(issue)
+def save_androguard_results(scan_id, issues):
+    """
+    Save Androguard analysis results to the database.
 
-# print("Completed")
+    Parameters:
+    - scan_id: ID of the scan to associate the results with.
+    - issues: List of issues returned from analyze.py.
+    """
+    try:
+        for issue in issues:
+            new_issue = AndroguardAnalysis(
+                scan_id=scan_id,
+                issue_type=issue.get('type', 'Unknown'),
+                issue_detail=issue.get('detail', 'No details provided'),
+                severity=issue.get('severity', 'info')
+            )
+            db.session.add(new_issue)
+        db.session.commit()
+        print(f"Saved {len(issues)} issues to the database.")
+    except Exception as e:
+        print(f"Error saving Androguard results: {e}")
+        db.session.rollback()

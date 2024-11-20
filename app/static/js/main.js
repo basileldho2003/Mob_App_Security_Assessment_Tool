@@ -14,18 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 5000);
     }
 
-    // Confirmation before Logout (Optional Feature)
-    const logoutLinks = document.querySelectorAll('.nav-link[href="/logout"]');
-    if (logoutLinks) {
-        logoutLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                if (!confirm("Are you sure you want to log out?")) {
-                    e.preventDefault();
-                }
-            });
-        });
-    }
-
     // File Upload Validation (e.g., Check for APK Extension)
     const fileInput = document.getElementById('apk_file');
     if (fileInput) {

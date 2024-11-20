@@ -50,7 +50,9 @@
                             <td>
                                 {% if upload.scans and upload.scans[0].status == 'completed' %}
                                 <a href="{{ url_for('view_scan', scan_id=upload.scans[0].id) }}"
-                                    class="btn btn-primary btn-sm">View Results</a>
+                                    class="btn btn-primary btn-sm">View jadx Results</a>
+                                <a href="{{ url_for('view_androguard_scan', scan_id=upload.scans[0].id) }}"
+                                    class="btn btn-info btn-sm">View Androguard Results</a>
                                 {% else %}
                                 <span class="text-muted">N/A</span>
                                 {% endif %}
@@ -108,7 +110,9 @@
                             <td>
                                 {% if upload.scans and upload.scans[0].status == 'completed' %}
                                 <a href="{{ url_for('view_scan', scan_id=upload.scans[0].id) }}"
-                                    class="btn btn-primary btn-sm">View Results</a>
+                                    class="btn btn-primary btn-sm">View jadx Results</a>
+                                <a href="{{ url_for('view_androguard_scan', scan_id=upload.scans[0].id) }}"
+                                    class="btn btn-info btn-sm">View Androguard Results</a>
                                 {% else %}
                                 <span class="text-muted">N/A</span>
                                 {% endif %}

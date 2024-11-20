@@ -111,6 +111,7 @@ body {
 }
 
 /* Button Styling */
+.btn-info,
 .btn-primary,
 .btn-secondary,
 .btn-danger,
@@ -120,6 +121,7 @@ body {
     transition: opacity 0.3s ease;
 }
 
+.btn-info:hover
 .btn-primary:hover,
 .btn-secondary:hover,
 .btn-danger:hover,

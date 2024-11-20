@@ -1,8 +1,6 @@
-from io import BytesIO
-from flask import make_response, render_template, redirect, url_for, flash, session
-from weasyprint import HTML
+from flask import render_template, redirect, url_for, flash, session
 from app.database import db
-from app.database.models import ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
+from app.database.models import AndroguardAnalysis, ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
 from app.decompilation.andro import analyze_apk_with_androguard
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -11,7 +9,6 @@ from datetime import *
 from app.decompilation.decompile import decompile_apk
 from app.decompilation.manifest_scanner import analyze_manifest
 from app.decompilation.source_code_analyzer import analyze_source_code
-from app.security.result_generator import generate_results
 from app.security.payload_scanner import load_yara_rules, scan_with_yara
 import os, pytz
 
@@ -99,8 +96,70 @@ def dashboard():
         return render_template('dashboard.html', uploads=uploads)
 
 # Route for uploading APK files
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
+@app.route('/upload_and', methods=['GET', 'POST'])
+def upload_and():
+    form = UploadForm()
+    if 'user_id' not in session:
+        flash("Please log in to upload files.", "warning")
+        return redirect(url_for('login'))
+
+    if form.validate_on_submit():
+        file = form.apk_file.data
+        filename = file.filename
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(upload_path)
+
+        new_upload = Upload(
+            user_id=session['user_id'],
+            apk_file_name=filename
+        )
+        db.session.add(new_upload)
+        db.session.commit()
+
+        new_scan = Scan(
+            upload_id=new_upload.id,
+            status='queued'
+        )
+        db.session.add(new_scan)
+        db.session.commit()
+
+        try:
+            new_scan.status = 'in_progress'
+            db.session.commit()
+
+            # Call Androguard script for analysis and save results
+            issues = analyze_apk_with_androguard(upload_path, new_scan.id)
+
+            # Save issues to AndroguardAnalysis table
+            for issue in issues:
+                new_issue = AndroguardAnalysis(
+                    scan_id=new_scan.id,
+                    issue_type=issue['type'],
+                    issue_detail=issue['detail'],
+                    severity=issue['severity']
+                )
+                db.session.add(new_issue)
+            db.session.commit()
+
+            # Mark scan as completed
+            new_scan.status = 'completed'
+            new_scan.scan_date = get_ist_time()
+            db.session.commit()
+
+            flash("File uploaded and analyzed successfully!", "success")
+        except Exception as e:
+            new_scan.status = 'failed'
+            db.session.commit()
+            print(f"Error during APK analysis: {e}")
+            flash("An error occurred during the scan. Please try again.", "danger")
+
+        return redirect(url_for('dashboard'))
+
+    return render_template('upload_and.html', form=form)
+
+
+@app.route('/upload_jadx', methods=['GET', 'POST'])
+def upload_jadx():
     """
     Handle APK file upload, create an upload record, initiate scan, and redirect to dashboard.
     """
@@ -133,13 +192,12 @@ def upload():
         db.session.commit()
 
         # Process the uploaded APK file synchronously
-        #process_apk(new_scan.id)
-        analyze_apk_with_androguard(upload_path)
+        process_apk(new_scan.id)
 
-        flash("File uploaded and scan initiated successfully!", "success")
+        flash("File uploaded and analyzed successfully!", "success")
         return redirect(url_for('dashboard'))
 
-    return render_template('upload.html', form=form)
+    return render_template('upload_jadx.html', form=form)
 
 def process_apk(scan_id):
     """
@@ -219,8 +277,6 @@ def process_apk(scan_id):
             )
             db.session.add(payload_match)
 
-        # Generate final report with all findings
-        results = generate_results(scan.id, manifest_issues, source_code_issues, [], payload_matches)
 
         # Mark scan as completed and save scan date
         scan.status = 'completed'
@@ -243,36 +299,20 @@ def view_scan(scan_id):
     source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id).all()
     payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
     
-    return render_template('scan_results.html', scan=scan, 
+    return render_template('scan_results.html', scan_id=scan.id, 
                            manifest_issues=manifest_issues, 
                            source_code_issues=source_code_issues, 
                            payload_matches=payload_matches)
 
-@app.route('/download_pdf/<int:scan_id>')
-def download_pdf(scan_id):
+@app.route('/view_androguard_scan/<int:scan_id>')
+def view_androguard_scan(scan_id):
     """
-    Render the scan results page for a specific scan ID, displaying manifest issues, source code issues, and payload matches.
+    Render the Androguard scan results page for a specific scan ID, displaying Androguard analysis issues.
     """
     scan = Scan.query.get_or_404(scan_id)
-    manifest_issues = ManifestIssue.query.filter_by(scan_id=scan.id).all()
-    source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id).all()
-    payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
+    androguard_issues = AndroguardAnalysis.query.filter_by(scan_id=scan.id).all()
     
-    html_content = render_template('report.html', scan=scan, 
-                           manifest_issues=manifest_issues, 
-                           source_code_issues=source_code_issues, 
-                           payload_matches=payload_matches)
-    
-    pdf_file = BytesIO()
-    HTML(string=html_content).write_pdf(pdf_file)
-    pdf_file.seek(0)
-
-    # Create response with PDF file
-    response = make_response(pdf_file.read())
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=scan_results_{scan_id}.pdf'
-    return response
-
+    return render_template('scan_results_and.html', scan_id=scan.id, scan=scan, androguard_issues=androguard_issues)
 
 # Route for logout
 @app.route('/logout')

@@ -42,8 +42,6 @@ class Scan(db.Model):
     manifest_issues = db.relationship('ManifestIssue', backref='scan', lazy=True)
     source_code_issues = db.relationship('SourceCodeIssue', backref='scan', lazy=True)
     scan_payload_matches = db.relationship('ScanPayloadMatch', backref='scan', lazy=True)
-    logs = db.relationship('Log', backref='scan', lazy=True)
-
 
 class ManifestIssue(db.Model):
     __tablename__ = 'manifest_issues'
@@ -103,10 +101,17 @@ class ScanPayloadMatch(db.Model):
     severity = db.Column(db.Enum('low', 'medium', 'high', 'critical', name='severity_levels'), nullable=True)
 
 
-class Log(db.Model):
-    __tablename__ = 'logs'
+class AndroguardAnalysis(db.Model):
+    __tablename__ = 'androguard_analysis'
     
     id = db.Column(db.Integer, primary_key=True)
-    scan_id = db.Column(db.Integer, db.ForeignKey('scans.id'), nullable=False)
-    log_message = db.Column(db.Text, nullable=False)
-    log_time = db.Column(db.DateTime, default=get_ist_time)
+    scan_id = db.Column(db.Integer, db.ForeignKey('scans.id'), nullable=False)  # Link to the scan table
+    issue_type = db.Column(db.String(255), nullable=False)
+    issue_detail = db.Column(db.Text, nullable=False)
+    severity = db.Column(
+        db.Enum('low', 'medium', 'high', 'critical', 'info', name='androguard_severity_levels'),
+        nullable=False
+    )
+    timestamp = db.Column(db.DateTime, default=get_ist_time)
+
+    scan = db.relationship('Scan', backref=db.backref('androguard_issues', lazy=True))
