@@ -151,12 +151,8 @@ def analyze_apk(apk_path):
 if __name__ == "__main__":
     try:
         apk_path = sys.argv[1]  # Get APK path from command-line arguments
-        #print(f"Received APK path: {apk_path}")
         issues = analyze_apk(apk_path)
-        # print(issues)
-        # print(type(issues))
         print(json.dumps(issues))  # Output results as JSON
-        # print(type(json.dumps(issues)))
     except Exception as e:
         print(json.dumps({"error": f"Error analyzing APK: {str(e)}"}))
 ```
