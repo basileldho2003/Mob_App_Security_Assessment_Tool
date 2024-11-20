@@ -49,10 +49,15 @@
                             </td>
                             <td>
                                 {% if upload.scans and upload.scans[0].status == 'completed' %}
-                                <a href="{{ url_for('view_scan', scan_id=upload.scans[0].id) }}"
+                                {% set scan = upload.scans[0] %}
+                                {% if scan.manifest_issues or scan.source_code_issues or scan.scan_payload_matches %}
+                                <a href="{{ url_for('view_scan', scan_id=scan.id) }}"
                                     class="btn btn-primary btn-sm">View jadx Results</a>
-                                <a href="{{ url_for('view_androguard_scan', scan_id=upload.scans[0].id) }}"
+                                {% endif %}
+                                {% if scan.androguard_issues %}
+                                <a href="{{ url_for('view_androguard_scan', scan_id=scan.id) }}"
                                     class="btn btn-info btn-sm">View Androguard Results</a>
+                                {% endif %}
                                 {% else %}
                                 <span class="text-muted">N/A</span>
                                 {% endif %}
@@ -109,10 +114,15 @@
                             </td>
                             <td>
                                 {% if upload.scans and upload.scans[0].status == 'completed' %}
-                                <a href="{{ url_for('view_scan', scan_id=upload.scans[0].id) }}"
+                                {% set scan = upload.scans[0] %}
+                                {% if scan.manifest_issues or scan.source_code_issues or scan.scan_payload_matches %}
+                                <a href="{{ url_for('view_scan', scan_id=scan.id) }}"
                                     class="btn btn-primary btn-sm">View jadx Results</a>
-                                <a href="{{ url_for('view_androguard_scan', scan_id=upload.scans[0].id) }}"
+                                {% endif %}
+                                {% if scan.androguard_issues %}
+                                <a href="{{ url_for('view_androguard_scan', scan_id=scan.id) }}"
                                     class="btn btn-info btn-sm">View Androguard Results</a>
+                                {% endif %}
                                 {% else %}
                                 <span class="text-muted">N/A</span>
                                 {% endif %}
@@ -124,7 +134,8 @@
             </div>
             {% else %}
             <p>You haven't uploaded any files yet.</p>
-            <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload File</a>
+            <a href="{{ url_for('upload_jadx') }}" class="btn btn-primary">Upload File (jadx)</a>
+            <a href="{{ url_for('upload_and') }}" class="btn btn-primary">Upload File (Androguard)</a>
             {% endif %}
         </div>
     </div>
