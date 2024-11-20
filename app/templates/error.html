@@ -17,6 +17,8 @@
                         The page you are looking for could not be found. Please check the URL and try again.
                         {% elif error == "500 Internal Server Error" %}
                         An unexpected error occurred on the server. Please try again later or contact support.
+                        {% elif error == "413 Request Entity Too Large" %}
+                        The uploaded file exceeds the allowed size limit of 150 MB. Please try again.
                         {% else %}
                         An unexpected error occurred. Please try again later.
                         {% endif %}

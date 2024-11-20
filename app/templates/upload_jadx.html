@@ -16,7 +16,7 @@
 
                         <div class="mb-3">
                             <label for="apk_file" class="form-label">Select APK File</label>
-                            {{ form.apk_file(class="form-control", id="apk_file") }}
+                            {{ form.apk_file(class="form-control", id="apk_file", accept=".apk") }}
                             {% if form.apk_file.errors %}
                             <div class="text-danger">
                                 {% for error in form.apk_file.errors %}

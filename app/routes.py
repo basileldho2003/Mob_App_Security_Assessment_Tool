@@ -100,6 +100,9 @@ def dashboard():
 # Route for uploading APK files
 @app.route('/upload_and', methods=['GET', 'POST'])
 def upload_and():
+    """
+    Handle APK file upload, create an upload record, initiate scan, and redirect to dashboard.
+    """
     form = UploadForm()
     if 'user_id' not in session:
         flash("Please log in to upload files.", "warning")
@@ -352,3 +355,10 @@ def internal_error(error):
     Render a custom 500 error page for internal server errors.
     """
     return render_template('error.html', error="500 Internal Server Error"), 500
+
+@app.errorhandler(413)
+def internal_error(error):
+    """
+    Render a custom error page for the 'Request Entity Too Large' error.
+    """
+    return render_template('error.html', error="413 Request Entity Too Large"), 413
