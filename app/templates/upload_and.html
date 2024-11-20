@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Upload APK - Mobile App Security Tool{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Upload APK File</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('upload_and') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label for="apk_file" class="form-label">Select APK File</label>
+                            {{ form.apk_file(class="form-control", id="apk_file") }}
+                            {% if form.apk_file.errors %}
+                            <div class="text-danger">
+                                {% for error in form.apk_file.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Upload File</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="text-muted">Make sure the file is in APK format and within the allowed size limit.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
