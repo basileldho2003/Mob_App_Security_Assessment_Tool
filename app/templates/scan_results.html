@@ -124,6 +124,7 @@
         </div>
     </div>
 </div>
+
 <!-- Add html2pdf.js library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 
@@ -134,8 +135,7 @@
 
         const opt = {
             margin: 1,
-            //filename: `scan_report_{{ scan_id }}.pdf`,
-            filename: `scan_report.pdf`,
+            filename: `scan_report_{{ scan_id }}.pdf`,
             image: { type: 'none' }, // Disables image processing
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
