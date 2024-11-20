@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, session
 from app.database import db
-from app.database.models import AndroguardAnalysis, ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue  # Import necessary models
+from app.database.models import AndroguardAnalysis, ManifestIssue, ScanPayloadMatch, User, Upload, Scan, SourceCodeIssue, Payload  # Import necessary models
 from app.decompilation.andro import analyze_apk_with_androguard
 from app.forms import LoginForm, SignupForm, UploadForm  # Import necessary forms
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -297,8 +297,20 @@ def view_scan(scan_id):
     scan = Scan.query.get_or_404(scan_id)
     manifest_issues = ManifestIssue.query.filter_by(scan_id=scan.id).all()
     source_code_issues = SourceCodeIssue.query.filter_by(scan_id=scan.id).all()
-    payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
-    
+    # payload_matches = ScanPayloadMatch.query.filter_by(scan_id=scan.id).all()
+    payload_matches = db.session.query(
+        ScanPayloadMatch.file_path.label('file_path'),
+        ScanPayloadMatch.line_number.label('line_number'),
+        ScanPayloadMatch.match_detail.label('match_detail'),
+        ScanPayloadMatch.severity.label('severity'),
+        Payload.payload_name.label('payload_name')
+    ).join(
+        Payload, ScanPayloadMatch.payload_id == Payload.id, isouter=True
+    ).filter(
+        ScanPayloadMatch.scan_id == scan.id
+    ).all()
+
+
     return render_template('scan_results.html', scan_id=scan.id, 
                            manifest_issues=manifest_issues, 
                            source_code_issues=source_code_issues, 
