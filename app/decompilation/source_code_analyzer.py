@@ -1,6 +1,8 @@
 import os
 import javalang
 
+from app.logger import logger
+
 class ValidationError(Exception):
     def __init__(self, message):            
         super().__init__(message)
@@ -23,19 +25,16 @@ def analyze_source_code(source_code_dir):
             if file.endswith(".java"):
                 file_path = os.path.join(root, file)
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as java_file:
-                	#print(java_file.read())
                     try:
                         source_code = java_file.read()
-                        #print(source_code)
                     except Exception as e:
-                        print(f"Error reading {file_path}: {e}")
+                        logger.error(f"Error reading {file_path}: {e}")
                     try:
                         result = analyze_java_file(file_path, source_code)
-                        #print(result)
                         if result:
                             issues += result
                     except Exception as e:
-                        print(f"Error analyzing source_code {file_path}: {e}")
+                        logger.error(f"Error analyzing source_code {file_path}: {e}")
     # analyze_apk_with_androguard(source_code_dir)
     return issues
 
@@ -55,7 +54,6 @@ def analyze_java_file(file_path, source_code):
     try:
         # Parse the source code
         tree = javalang.parse.parse(source_code)
-        #print(tree)
         
         # Check for empty catch blocks
         for _, method in tree.filter(javalang.tree.MethodDeclaration):
@@ -124,8 +122,8 @@ def analyze_java_file(file_path, source_code):
                 })
 
     except ValidationError as e:
-        print(f"Some error : {e}")
+        logger.error(f"Some error : {e}")
     except javalang.parser.JavaSyntaxError as e:
-        print(f"Tree not parsable (use Androguard) in {file_path}: {e}")
+        logger.error(f"Tree not parsable (use Androguard) in {file_path}: {e}")
     except Exception as e:
-        print(f"Error analyzing java code {file_path}: {e}")
+        logger.error(f"Error analyzing java code {file_path}: {e}")

@@ -1,8 +1,10 @@
 import os
 import yara
+
 from app.database.models import Payload
 from app.database import db
 from binaryornot.check import is_binary
+from app.logger import logger
 
 def load_yara_rules(rules_dir):
     """
@@ -34,7 +36,7 @@ def load_yara_rules(rules_dir):
 
                     payload_map[file] = payload  # Map rule name to payload object
                 except yara.SyntaxError as e:
-                    print(f"Error compiling YARA rule at {rule_path}: {e}")
+                    logger.error(f"Error compiling YARA rule at {rule_path}: {e}")
 
     return rules, payload_map
 
@@ -77,6 +79,6 @@ def scan_with_yara(source_code_dir, rules, payload_map):
                                         "payload_id": payload.id  # Add payload_id for the match
                                     })
                 except Exception as e:
-                    print(f"Error reading or scanning file {file_path}: {e}")
+                    logger.error(f"Error reading or scanning file {file_path}: {e}")
 
     return matches

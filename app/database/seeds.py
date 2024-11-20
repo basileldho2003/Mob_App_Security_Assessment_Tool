@@ -1,6 +1,8 @@
 import sys
 import os
 
+from app.logger import logger
+
 # Add the root directory of the project to the sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
@@ -26,9 +28,9 @@ def seed_data():
         )
         db.session.add(admin_user)
         db.session.commit()
-        print("Admin user created successfully.")
+        logger.info("Admin user created successfully.")
     else:
-        print("Admin user already exists.")
+        logger.info("Admin user already exists.")
 
 if __name__ == "__main__":
     app = create_app()

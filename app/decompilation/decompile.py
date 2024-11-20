@@ -1,5 +1,6 @@
 import os
 import subprocess
+from app.logger import logger
 
 def decompile_apk(apk_path, output_dir):
     """
@@ -24,9 +25,9 @@ def decompile_apk(apk_path, output_dir):
     apktool_command = ["apktool", "d", apk_path, "-o", apktool_output_dir, "-f"]
     try:
         subprocess.check_call(apktool_command)
-        print(f"APK successfully decompiled with apktool at {apktool_output_dir}")
+        logger.info(f"APK successfully decompiled with apktool at {apktool_output_dir}")
     except subprocess.CalledProcessError as e:
-        print(f"Error during APK decompilation with apktool: {e}")
+        logger.error(f"Error during APK decompilation with apktool: {e}")
         return None, None
 
     # Decompile with JADX
@@ -37,9 +38,9 @@ def decompile_apk(apk_path, output_dir):
     jadx_command = ["jadx", "-d", jadx_output_dir, apk_path]
     try:
         subprocess.check_call(jadx_command)
-        print(f"APK successfully decompiled with JADX at {jadx_output_dir}")
+        logger.info(f"APK successfully decompiled with JADX at {jadx_output_dir}")
     except subprocess.CalledProcessError as e:
-        print(f"Error during APK decompilation with JADX: {e}")
+        logger.error(f"Error during APK decompilation with JADX: {e}")
         return apktool_output_dir, None
 
     return apktool_output_dir, jadx_output_dir

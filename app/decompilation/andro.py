@@ -1,12 +1,14 @@
 import subprocess
 import json
 import os
+
 from app.database.models import AndroguardAnalysis  # Import the new model
 from app.database import db  # Import the database instance
+from app.logger import logger
 
 # Path to the Python interpreter in the Androguard environment
-androguard_path = "/home/basilsvm/test_area/"
-androguard_python = os.path.join(f"{androguard_path}androg", "bin", "python")  # Adjust for Windows: "androg\\Scripts\\python"
+androguard_path = "/home/basilsvm/test_area/" # Change here where analyze.py (provided in README.md) and 'androg' virtual environment is stored.
+androguard_python = os.path.join(f"{androguard_path}androg", "bin", "python")  # Adjust for Windows: "androg\\Scripts\\python", ensure that virtual environment named 'androg' is created.
 # Path to the Androguard analysis script
 analyze_script = f"{androguard_path}analyze.py"
 
@@ -21,7 +23,7 @@ def analyze_apk_with_androguard(apk_path, scan_id):
     Returns:
     - A list of detected issues or an error message.
     """
-    print("Analysis begins...")
+    logger.info("Analysis begins...")
 
     try:
         # Run the Androguard script in a subprocess
@@ -32,8 +34,6 @@ def analyze_apk_with_androguard(apk_path, scan_id):
             check=True,
         )
 
-        # print("Raw stdout:", result.stdout)
-
         # Parse the JSON output from the Androguard script
         if result.stdout.strip():
             issues = json.loads(result.stdout)
@@ -41,7 +41,7 @@ def analyze_apk_with_androguard(apk_path, scan_id):
             # Save results to the database
             save_androguard_results(scan_id, issues)
 
-            print("Analysis completed and results saved.")
+            logger.info("Analysis completed and results saved.")
             return issues
         else:
             error_msg = "No output from analyze.py"
@@ -80,7 +80,7 @@ def save_androguard_results(scan_id, issues):
             )
             db.session.add(new_issue)
         db.session.commit()
-        print(f"Saved {len(issues)} issues to the database.")
+        logger.info(f"Saved {len(issues)} issues to the database.")
     except Exception as e:
-        print(f"Error saving Androguard results: {e}")
+        logger.error(f"Error saving Androguard results: {e}")
         db.session.rollback()

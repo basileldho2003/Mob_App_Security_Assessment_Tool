@@ -1,8 +1,10 @@
 import os
+
 from werkzeug.security import generate_password_hash
 from app.database import db
 from app.database.models import User, Log
 from datetime import datetime
+from logger import logger
 
 def create_admin_user(username, email, password):
     """Utility function to create an admin user if not already existing."""
@@ -11,9 +13,9 @@ def create_admin_user(username, email, password):
         admin = User(username=username, email=email, password_hash=hashed_password, role='admin')
         db.session.add(admin)
         db.session.commit()
-        print(f"Admin user '{username}' created successfully.")
+        logger.info(f"Admin user '{username}' created successfully.")
     else:
-        print(f"Admin user '{username}' already exists.")
+        logger.info(f"Admin user '{username}' already exists.")
 
 def save_log(scan_id, message):
     """Utility function to save a log entry for a given scan."""

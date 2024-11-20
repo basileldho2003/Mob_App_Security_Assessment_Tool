@@ -10,6 +10,8 @@ from app.decompilation.decompile import decompile_apk
 from app.decompilation.manifest_scanner import analyze_manifest
 from app.decompilation.source_code_analyzer import analyze_source_code
 from app.security.payload_scanner import load_yara_rules, scan_with_yara
+from app.logger import logger
+
 import os, pytz
 
 def get_ist_time():
@@ -150,7 +152,7 @@ def upload_and():
         except Exception as e:
             new_scan.status = 'failed'
             db.session.commit()
-            print(f"Error during APK analysis: {e}")
+            logger.error(f"Error during APK analysis: {e}")
             flash("An error occurred during the scan. Please try again.", "danger")
 
         return redirect(url_for('dashboard'))
@@ -232,7 +234,7 @@ def process_apk(scan_id):
         if not apktool_output_dir or not jadx_output_dir:
             scan.status = 'failed'
             db.session.commit()
-            print("Decompilation failed. Exiting APK processing.")
+            logger.error("Decompilation failed. Exiting APK processing.")
             return
 
         # Step 2: Scan the AndroidManifest.xml file for issues
@@ -286,7 +288,7 @@ def process_apk(scan_id):
         # Mark scan as failed if any error occurs
         scan.status = 'failed'
         db.session.commit()
-        print(f"Error processing APK: {e}")
+        logger.error(f"Error processing APK: {e}")
 
 # Route for viewing scan results
 @app.route('/view_scan/<int:scan_id>')

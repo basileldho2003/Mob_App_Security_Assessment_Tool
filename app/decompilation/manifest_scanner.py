@@ -1,6 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
 
+from app.logger import logger
+
 def analyze_manifest(manifest_path):
     """
     Analyze the AndroidManifest.xml file for potential security issues.
@@ -12,7 +14,7 @@ def analyze_manifest(manifest_path):
     - A list of detected issues with their severity levels.
     """
     if not os.path.exists(manifest_path):
-        print(f"Error: Manifest file not found at {manifest_path}")
+        logger.error(f"Error: Manifest file not found at {manifest_path}")
         return []
 
     issues = []
@@ -65,7 +67,7 @@ def analyze_manifest(manifest_path):
                 })
 
     except ET.ParseError as e:
-        print(f"Error parsing the AndroidManifest.xml file: {e}")
+        logger.error(f"Error parsing the AndroidManifest.xml file: {e}")
         return []
 
     return issues
