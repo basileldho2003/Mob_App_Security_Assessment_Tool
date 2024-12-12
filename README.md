@@ -1,5 +1,11 @@
 # Mobile App Security Assessment Tool (MASAT)
 
+### Requirements :
+1. [Python](https://www.python.org/) (supported versions only)
+2. [MySQL](https://dev.mysql.com/downloads/)/[MariaDB](https://mariadb.org/) (supported versions only)
+3. [ApkTool](https://apktool.org/) (supported versions only)
+4. [jadx](https://github.com/skylot/jadx) (supported versions only)
+
 ## Steps to run the project:
 
 1. Clone this repo into the specified directory. Open the same in VSCode and open terminal from the menu bar.
@@ -9,7 +15,8 @@
     - ```<name>\Scripts\activate``` (Windows) or ```source <name>\bin\activate``` (Unix/Bash)
 3. Enter the following command to install dependencies :
     - ```pip install -r requirements.txt```
-4. In database.py, provide username, encrypted password and its Fernet key. Ensure that database specified is created in MySQL/MariaDB.
+4. Ensure that ```apktool``` and ```jadx``` is installed.
+5. In database.py, provide username, encrypted password and its Fernet key. Ensure that database specified is created in MySQL/MariaDB.
    - For getting encrypted password and its Fernet key (Run in IPython (```pip install IPython```)) :
      ```
      from cryptography.fernet import Fernet #Ensure that cryptography package is installed.
@@ -21,8 +28,8 @@
      
      print(encrypt_password("your_passwd"))
      ```
-5. Create another directory in file manager.
-6. Create ```analyze.py``` in the same directory file and copy paste the below code.
+6. Create another directory in file manager.
+7. Create ```analyze.py``` in the same directory file and copy paste the below code.
 #### analyze.py
 
 ```
@@ -186,3 +193,7 @@ if __name__ == "__main__":
 10. Close all terminals.
 11. In ```app/decompilation/andro.py```, change ```androguard_path``` value (line 10).
 12. After making above changes, open run.py and click on "Run" button.
+
+## Limitations:
+1. Results might be inaccurate due to jadx not producing 100% results.
+2. Thre might be an indication of false +ves.
