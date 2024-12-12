@@ -7,7 +7,7 @@ from app.database import db  # Import the database instance
 from app.logger import logger
 
 # Path to the Python interpreter in the Androguard environment
-androguard_path = "/home/basilsvm/test_area/" # Change here where analyze.py (provided in README.md) and 'androg' virtual environment is stored.
+androguard_path = "" # Give path where analyze.py (provided in README.md) and 'androg' virtual environment is stored.
 androguard_python = os.path.join(f"{androguard_path}androg", "bin", "python")  # Adjust for Windows: "androg\\Scripts\\python", ensure that virtual environment named 'androg' is created.
 # Path to the Androguard analysis script
 analyze_script = f"{androguard_path}analyze.py"
