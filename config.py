@@ -9,9 +9,9 @@ def decrypt_password(encrypted_password, key):
 class Config:
     # Basic Flask settings
     SECRET_KEY = os.urandom(24)  # Generates a 24-byte random secret key
-    USER = 'basilsvm'
-    EPASSWORD = 'gAAAAABnHvZYipuvrDOLB4EHnqG50eum_PLESmlEEdHhDU0FZfRIBV6ILSKtv9iWm98ItC8G45BJS_a6b01yCyk1oDECzBiMjQ=='
-    FKEY = '2P-elDYJNuMBG0efI825Y9aR61fAwA408ievaoUAVaI='
+    USER = '' # Enter your MySQL/MariaDB username
+    EPASSWORD = '' # Enter encrypted password (refer README.md)
+    FKEY = '' # Enter fernet key (refer README.md)
     PASSWORD = decrypt_password(EPASSWORD, FKEY)
     DATABASE_NAME = 'mobile_security_db'
     # SQLAlchemy settings
