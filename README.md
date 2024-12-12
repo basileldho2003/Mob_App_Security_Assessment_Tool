@@ -182,6 +182,7 @@ if __name__ == "__main__":
 8. Activate the environment and install androguard library.
    - ```androg\Scripts\activate``` (Windows) or ```source androg\bin\activate``` (Unix/Bash)
    - ```pip install androguard```
-9. Close all terminals.
-10. In ```app/decompilation/andro.py```, change ```androguard_path``` value (line 10).
-11. After making above changes, open run.py and click on "Run" button.
+9. Open MySQL/MariaDB and ensure that ```mobile_security_db``` database is created (```CREATE DATABASE mobile_security_db;```)
+10. Close all terminals.
+11. In ```app/decompilation/andro.py```, change ```androguard_path``` value (line 10).
+12. After making above changes, open run.py and click on "Run" button.
