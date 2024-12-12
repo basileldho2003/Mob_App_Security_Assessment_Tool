@@ -1,8 +1,5 @@
 # Mobile App Security Assessment Tool (MASAT)
 
-> Note : This readme is under WIP. 👷🏻 <br>
-> To be completed soon...
-
 #### analyze.py
 
 ```
