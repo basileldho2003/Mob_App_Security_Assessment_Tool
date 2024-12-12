@@ -1,5 +1,28 @@
 # Mobile App Security Assessment Tool (MASAT)
 
+## Steps to run the project:
+
+1. Clone this repo into the specified directory. Open the same in VSCode and open terminal from the menu bar.
+2. Ensure that virtualenv is installed and created (Replace <name> with anything.).
+    - ```pip install virtualenv```
+    - ```virtualenv <name>```
+    - ```<name>\Scripts\activate``` (Windows) or ```source <name>\bin\activate``` (Unix/Bash)
+3. Enter the following command to install dependencies :
+    - ```pip install -r requirements.txt```
+4. In database.py, provide username, encrypted password and its Fernet key. Ensure that database specified is created in MySQL/MariaDB.
+   - For getting encrypted password and its Fernet key (Run in IPython (```pip install IPython```)) :
+     ```
+     from cryptography.fernet import Fernet #Ensure that cryptography package is installed.
+     def encrypt_password(password):
+         key = Fernet.generate_key()
+         cipher_suite = Fernet(key)
+         encrypted_password = cipher_suite.encrypt(password.encode())
+         return encrypted_password.decode(), key.decode()
+     
+     print(encrypt_password("your_passwd"))
+     ```
+5. Create another directory in file manager.
+6. Create ```analyze.py``` in the same directory file and copy paste the below code.
 #### analyze.py
 
 ```
@@ -153,3 +176,14 @@ if __name__ == "__main__":
     except Exception as e:
         print(json.dumps({"error": f"Error analyzing APK: {str(e)}"}))
 ```
+
+7. Open seperate terminal and create another virtualenv in the same folder where analyze.py is stored.
+   - ```virtualenv androg```
+8. Activate the environment and install androguard library.
+   - ```androg\Scripts\activate``` (Windows) or ```source androg\bin\activate``` (Unix/Bash)
+   - ```pip install androguard```
+9. Close all terminals.
+10. In ```app/decompilation/andro.py```, change ```androguard_path``` value (line 10).
+11. After making above changes, open run.py and click on "Run" button.
+
+Developed by Basil Eldho.
