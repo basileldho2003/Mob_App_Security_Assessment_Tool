@@ -185,5 +185,3 @@ if __name__ == "__main__":
 9. Close all terminals.
 10. In ```app/decompilation/andro.py```, change ```androguard_path``` value (line 10).
 11. After making above changes, open run.py and click on "Run" button.
-
-Developed by Basil Eldho.
