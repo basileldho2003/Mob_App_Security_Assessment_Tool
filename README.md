@@ -28,8 +28,8 @@
      
      print(encrypt_password("your_passwd"))
      ```
-6. Create another directory in file manager.
-7. Create ```analyze.py``` in the same directory file and copy paste the below code.
+6. Create another directory in file manager (Outside the project directory is fine).
+7. Create ```analyze.py``` in the same directory file and copy-paste the below code.
 #### analyze.py
 
 ```
