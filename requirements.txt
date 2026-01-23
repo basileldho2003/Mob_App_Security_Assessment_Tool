@@ -25,6 +25,6 @@ pytz==2024.2
 six==1.17.0
 SQLAlchemy==2.0.36
 typing_extensions==4.12.2
-Werkzeug==3.1.4
+Werkzeug==3.1.5
 WTForms==3.2.1
 yara-python==4.5.1
